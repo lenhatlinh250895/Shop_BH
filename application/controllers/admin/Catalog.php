@@ -15,11 +15,36 @@ class Catalog extends MY_Controller
 		$this->load->model('admin/Catalog_M');
 	}
 
-	function index()
+	function index($offset = 1)
 	{
-		$list = $this->Catalog_M->getList();
+		$total = $this->Catalog_M->getTotal();
+		$this->load->library('pagination');
+		$config = array();
+		$config['total_rows'] = $total;
+		$config['base_url'] = admin_url('Catalog/index');
+		$config['use_page_numbers'] = true;
+		$config['per_page'] = 6;
+		$config['uri_segment'] = 4;
+		$config['num_tag_open']     = '<li>';
+        $config['num_tag_close']    = '</li>';
+        $config['cur_tag_open']     = '<li class="active"><a href="#">';
+        $config['cur_tag_close']    = '</a></li>';
+        $config['next_tag_open']    = '<li>';
+        $config['next_tag_close']   = '</li>';
+        $config['prev_tag_open']    = '<li>';
+        $config['prev_tag_close']   = '</li>';
+        $config['next_link']        = '>';
+        $config['prev_link']        = '<';
+        $config['first_tag_open']   = '<li>';
+        $config['first_tag_close']  = '</li>';
+        $config['last_tag_open']    = '<li>';
+        $config['last_tag_close']   = '</li>';
+		$this->pagination->initialize($config);
+		$input = array();
+		$input['limit'] = array($config['per_page'],($offset-1)*$config['per_page']);
+		$list = $this->Catalog_M->getList($input);
 		//textData($list);
-		$this->data['total'] = $this->Catalog_M->getTotal();
+		$this->data['total'] = $total;
 		$this->data['list'] = $list;
 		$this->data['message'] = $this->session->flashdata('message');
 		$this->data['temp'] = 'admin/catalog/index';
@@ -114,21 +139,30 @@ class Catalog extends MY_Controller
 		$id = $this->uri->rsegment(3);
 		//textData($id);
 		$id = intval($id);
+		$this->_del($id);
+
+		$this->session->set_flashdata('message','Delete catalog successfully!');
+		redirect(admin_url('Catalog'));
+	}
+
+	function dellAll()
+	{
+		$ids = $this->input->post('ids');
+		foreach($ids as $id)
+		{
+			$this->_del($id);
+		}
+	}
+
+	function _del($id)
+	{
 		$info = $this->Catalog_M->getInfo($id);
 		if(!$info)
 		{
 			$this->session->set_flashdata('message','NO!!!!!!');
 			redirect(admin_url('Catalog'));
 		}
-		if($this->Catalog_M->delete($id))
-		{
-			$this->session->set_flashdata('message','Delete catalog successfully!');
-		}
-		else
-		{
-			$this->session->set_flashdata('message','Delete catalog failed!');
-		}
-		redirect(admin_url('Catalog'));
+		$this->Catalog_M->delete($id);
 	}
 }
 ?>

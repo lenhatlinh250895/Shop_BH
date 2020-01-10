@@ -1,5 +1,5 @@
 <div class="page-header">
-  <?php $this->load->view('admin/admin/head'); ?>
+  <?php $this->load->view('admin/Catalog/head'); ?>
 </div>
 
 <div class="col-md-12 grid-margin stretch-card">

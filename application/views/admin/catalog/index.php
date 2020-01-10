@@ -1,17 +1,18 @@
 <div class="page-header">
-  <?php $this->load->view('admin/admin/head'); ?>
+  <?php $this->load->view('admin/catalog/head'); ?>
 </div>
 <div class="row">
   <div class="col-lg-12 grid-margin stretch-card">
     <div class="card">
       <div class="card-body">
-        <h4 class="card-title">Table Admin</h4><nav class="breadcrumb">Total:<?php echo $total; ?></nav>
+        <h4 class="card-title">Table Catalog</h4><nav class="breadcrumb">Total:<?php echo $total; ?></nav>
         <?php $this->load->view('admin/message'); ?>
         <div id="alert" class="alert alert-success" style="display: none;"></div>
         <div class="table-responsive" id="showalluser">
           <table class="table table-striped table-bordered border">
             <thead>
               <tr>
+                <th></th>
                 <th> ID </th>
                 <th> NAME </th>
                 <th> PARENT ID </th>
@@ -22,7 +23,8 @@
             </thead>
             <tbody>
               <?php foreach($list as $row): ?>
-              <tr>
+              <tr class="row_<?php echo $row->id; ?>">
+                <td><input type="checkbox" name="id[]" value="<?php echo $row->id; ?>"></td>
                 <td class="py-1">
                   <?php echo $row->id; ?>
                 </td>
@@ -34,10 +36,23 @@
               </tr>
             <?php endforeach ?>
             </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="8">
+                  <div class="itemactions list-group-item-action">
+                    <a href="#submit" id="submit" class="btn btn-primary" url="<?php echo admin_url('Catalog/dellAll'); ?>" >
+                      <span style="color:white;">Delete All</span>
+                    </a>
+                  </div>
+                </td>
+              </tr>
+            </tfoot>
           </table>
          
         </div>
-        <div class="pagi pagination clearfix"></div>
+        <div class="pagi pagination clearfix">
+          <?php echo $this->pagination->create_links(); ?>
+        </div>
       </div>
     </div>
   </div>

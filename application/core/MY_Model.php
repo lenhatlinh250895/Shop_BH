@@ -110,6 +110,11 @@ class MY_Model extends CI_Model
 			$this->db->like($input['like'][0],$input['like'][1]);		
 		}
 
+		if(isset($input['like1']) && $input['like1'])
+		{
+			$this->db->like($input['like1'][0],$input['like1'][1]);		
+		}
+
 		if(isset($input['order'][0]) && isset($input['order'][1]))
 		{
 			$this->db->order_by($input['order'][0],$input['order'][1]);		

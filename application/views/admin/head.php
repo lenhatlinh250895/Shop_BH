@@ -13,9 +13,14 @@
 <!-- End plugin css for this page -->
 <script type="text/javascript" src="<?php echo public_url(); ?>js/jquery.min.js"></script>
 <script type="text/javascript" src="<?php echo public_url(); ?>js/jquery-ui.min.js"></script>
+<script type="text/javascript" src="<?php echo public_url(); ?>js/myscript.js"></script>
 <!-- inject:css -->
 <!-- endinject -->
 <!-- Layout styles -->
 <link rel="stylesheet" href="<?php echo public_url(); ?>css/style.css">
 <!-- End layout styles -->
 <link rel="shortcut icon" href="<?php echo public_url(); ?>images/favicon.png" />
+<!-- <link rel='stylesheet' href='https://cdn.rawgit.com/t4t5/sweetalert/v0.2.0/lib/sweet-alert.css'> -->
+<!-- <script src='https://cdn.rawgit.com/t4t5/sweetalert/v0.2.0/lib/sweet-alert.min.js'></script> -->
+<script type="text/javascript" src="<?php echo public_url(); ?>js/sweetalert2.js"></script>
+<!-- <script type="text/javascript" src="<?php echo public_url(); ?>js/smooth-scroll.js"></script> -->

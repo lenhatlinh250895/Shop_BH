@@ -14,10 +14,25 @@ class Admin extends MY_Controller
 		$this->load->helper('form');
 	}
 
-	function index()
+	function index($offset = 1)
 	{
 		$this->data['temp'] = 'admin/admin/index';
+		$total = $this->Admin_M->getTotal();
+		$this->load->library('pagination');
+		$config = array();
+		$config['base_url'] = admin_url('Admin/index');
+		$config['total_rows'] = $total;
+		$config['use_page_numbers'] = true;
+		$config['uri_segment'] = 4;
+		$config['per_page'] = 2;
+		$this->pagination->initialize($config);
+		$pagination = $this->pagination->create_links();
+		$this->data['pagination'] = $pagination;
 		$input = array();
+		$input['limit'] = array(
+			$config['per_page'],
+			($offset - 1)*$config['per_page']
+		);
 		$list = $this->Admin_M->getList($input);
 		$this->data['list'] = $list;
 
@@ -125,6 +140,29 @@ class Admin extends MY_Controller
 		$this->load->view('admin/main',$this->data);
 	}
 
+	function removeUserAjax()
+	{
+		$response = array();
+		if($this->input->post('delete'))
+		{
+			$id = intval($this->input->post('delete'));
+			$delete = $this->Admin_M->delete($id);
+			if($delete)
+			{
+				$response['status'] = 'success';
+				$response['message'] = 'Đã xóa thành công!';
+			}
+			else
+			{
+				$response['status'] = 'error';
+				$response['message'] = 'Xóa thất bại!';
+			}
+			echo json_encode($response);
+		}
+		else
+			echo json_encode('adsfsadf');
+	}
+
 	function delete()
 	{
 		$id = $this->uri->rsegment('3');
@@ -151,9 +189,119 @@ class Admin extends MY_Controller
 	{
 		if($this->session->userdata('admin'))
 		{
-			$this->session->unset_userdata('admin');
+			$this->session->sess_destroy();
 		}
 		redirect(admin_url('Login'));
+	}
+
+	public function search($offset = 1)
+	{
+		$post = $this->input->post();
+		$config['per_page'] = 2;
+		$config['base_url'] = '#';
+		$config['uri_sengment'] = 4;
+		$input = array();
+		if(!empty($post['id']))
+		{
+			$input['where'] = array(
+				'id' => $post['id']
+			);
+		}
+		if(!empty($post['email']))
+		{
+			$input['like'] = array(
+				'email',
+				trim($post['email'])
+			);
+		}
+		if(!empty($post['name']))
+		{
+			$input['like1'] = array(
+				'name',
+				$post['name']
+			);
+		}
+		$total_user_search = $this->Admin_M->getTotal($input); 
+		$limit = ($offset-1)*$config['per_page'];
+		$input['limit'] = array(
+			$config['per_page'],
+			$limit
+		);
+		// textData($input);
+		$list_users_search = $this->Admin_M->getList($input);
+
+
+		$config['total_rows'] = $total_user_search;
+		$total_rows = ceil($config['total_rows']/$config['per_page']);
+		$config['use_page_numbers'] = true;
+		$config['num_tag_open']     = '<li class="pagclick">';
+        $config['num_tag_close']    = '</li>';
+        $config['cur_tag_open']     = '<strong><li class="active"><a href="#">';
+        $config['cur_tag_close']    = '</a></li></strong>';
+        $config['next_tag_open']    = '<li class="next">';
+        $config['next_tag_close']   = '</li>';
+        $config['prev_tag_open']    = '<li class="prev">';
+        $config['prev_tag_close']   = '</li>';
+        $config['next_link']        = '>';
+        $config['prev_link']        = '<';
+        $config['first_tag_open'] = '<li class="first">';
+        $config['first_tag_close'] = '</li>';
+        $config['last_tag_open'] = '<li class="last">';
+        $config['last_tag_close']   = '</li>';
+        $config['last_link']  = 'Last';
+        $config['first_link'] = 'First';
+		$this->pagination->initialize($config);
+		$pagination = $this->pagination->create_links();
+
+		$html = '<thead>
+	              <tr>
+	                <th> ID </th>
+	                <th> NAME </th>
+	                <th> USER NAME </th>
+	                <th> EMAIL </th>
+	                <th> LEVEL </th>
+	                <th> DELETE </th>
+	                <th> UPDATE </th>
+	              </tr>
+	            </thead>
+	            <tbody>';
+
+	    if($total_user_search > 0)
+	    {
+	    	foreach($list_users_search as $user_val)
+	    	{
+	    		$html .= '<tr>
+			                <td class="py-1">'.
+			                  $user_val->id.
+			                '</td>
+			                <td>'.$user_val->name.'</td>
+			                <td>'.$user_val->username.'</td>
+			                <td>'.$user_val->email.'</td>
+			                <td>'.$user_val->level.'</td>
+			                <td><a href="#" class="btn btn-danger verify_action" id="btndel" data-id="'.$user_val->id.'">Delete</a></td>
+			                <td><a href="'.admin_url("Admin/edit/".$user_val->id).'" class="btn btn-success">Update</a></td>
+			              </tr>';
+	    	}
+	    }
+	    else
+	    {
+	    	$html .= '<tr><td colspan="7" style="color: red">Không có kết quả!</td></tr>';
+	    }
+	    $html .= '</tbody>';
+
+	    $myObj['data_html'] = $html;
+	    $myObj['data_pagination'] = $pagination;
+	    $myObj['data_total_rows'] = $total_rows;
+	    $myObj['data_this_page'] = $offset;
+	    $myJSON = json_encode($myObj);
+	    echo $myJSON;
+	}
+
+	public function fSearch()
+	{
+		$config['per_page'] = 2;
+		$config['base_url'] = '#';
+		$config['uri_sengment'] = 4;
 	}
 	// public function addAdmin()
 	// {

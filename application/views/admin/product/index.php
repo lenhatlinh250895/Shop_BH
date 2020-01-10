@@ -1,5 +1,5 @@
 <div class="page-header">
-  <?php $this->load->view('admin/admin/head'); ?>
+  <?php $this->load->view('admin/product/head'); ?>
 </div>
 <div class="row">
   <div class="col-lg-12 grid-margin stretch-card">
@@ -7,215 +7,77 @@
       <div class="card-body">
         <h4 class="card-title">Table Admin</h4><nav class="breadcrumb">Total:<?php echo $total; ?></nav>
         <?php $this->load->view('admin/message'); ?>
-        <div>
-          <form action="" method="post" id="search_parent">
-            <table>
-              <tr>
-                <th>ID</th>
-                <td><input type="text" id="id" value=""></td>
-              </tr>
-              <tr>
-                <th>EMAIL</th>
-                <td><input type="text" id="email" value=""></td>
-              </tr>
-              <tr>
-                <th>NAME</th>
-                <td><input type="text" id="name" value=""></td>
-              </tr>
-            </table>
-            <div>
-              <button type="submit" class="btn btn-secondary" id="btn_search">Search</button>
-            </div>
-          </form>
-        </div>
+        <div id="alert" class="alert alert-success" style="display: none;"></div>
         <div class="table-responsive" id="showalluser">
+          <select name="catalog">
+            <?php foreach($catalogs as $row): ?>
+              <?php if(count($row->subs) > 0): ?>
+                <optgroup label="<?php echo $row->name; ?>">
+                  <?php foreach($row->subs as $sub): ?>
+                    <option value="<?php echo $sub->id; ?>"><?php echo $sub->name; ?></option>
+                  <?php endforeach ?>
+                </optgroup>
+              <?php else: ?>
+                <option value="<?php echo $row->id; ?>"><?php echo $row->name; ?></option>}
+              <?php endif ?>
+            <?php endforeach ?>
+          </select>
           <table class="table table-striped table-bordered border">
             <thead>
               <tr>
+                <th></th>
                 <th> ID </th>
+                <th> IMAGE </th>
+                <th> PRICE </th>
                 <th> NAME </th>
-                <th> USER NAME </th>
-                <th> EMAIL </th>
-                <th> LEVEL </th>
+                <th> VIEW </th>
+                <th> CREATED </th>
                 <th> DELETE </th>
                 <th> UPDATE </th>
               </tr>
             </thead>
             <tbody>
               <?php foreach($list as $row): ?>
-              <tr>
+              <tr class="row_<?php echo $row->id; ?>">
+                <td><input type="checkbox" name="id[]" value="<?php echo $row->id; ?>"></td>
                 <td class="py-1">
                   <?php echo $row->id; ?>
                 </td>
-                <td><?php echo $row->name; ?> </td>
-                <td><?php echo $row->username; ?></td>
-                <td><?php echo $row->email; ?></td>
-                <td><?php echo $row->level; ?></td>
-                <td><a href="" class="btn btn-danger verify_action" id="btndel" data-id="<?php echo $row->id; ?>">Delete</a></td>
-                <td><a href="<?php echo admin_url('Admin/edit/'.$row->id); ?>" class="btn btn-success">Update</a></td>
+                <td><img width="200px" src="<?php echo base_url('upload/product/'.$row->image_link); ?>" ></td>
+                <td><?php echo $row->price; ?></td>
+                <td><?php echo $row->name; ?></td>
+                <td><?php echo $row->view; ?></td>
+                <td><?php echo date('d-m-Y',$row->created); ?></td>
+                <td><a href="<?php echo admin_url('Product/delete/'.$row->id); ?>" class="btn btn-danger" id="btndel" data="$row->id">Delete</a></td>
+                <td><a href="<?php echo admin_url('Product/edit/'.$row->id); ?>" class="btn btn-success">Update</a></td>
               </tr>
             <?php endforeach ?>
             </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="8">
+                  <div class="itemactions list-group-item-action">
+                    <a href="#submit" id="submit" class="btn btn-primary" url="<?php echo admin_url('Product/dellAll'); ?>" >
+                      <span style="color:white;">Delete All</span>
+                    </a>
+                  </div>
+                </td>
+              </tr>
+            </tfoot>
           </table>
          
         </div>
-        <div class="pagination clearfix">
-          <?php echo $pagination; ?>
-        </div>
-        <input type="hidden" name="this_page" id="this_page">
-        <input type="hidden" name="last_page" id="last_page">
+        <div class="pagi pagination clearfix"><?php echo $this->pagination->create_links(); ?></div>
       </div>
     </div>
   </div>
 </div>
-<script>
-  $(document).on('click','#btndel',function(e){
-    e.preventDefault();
-    var id = $(this).data('id');
-    user_remove(id);
-    // if(!confirm('Are you sure?'))
-    //   return false;
+<script type="text/javascript">
+  $(document).ready(function(){
+    $(".alert-info").delay(3000).fadeOut("fast");
   });
-
-  function user_remove(id)
-  {
-    //console.log(id);
-     swal({
-      title: 'Bạn có chắc chắn muốn xóa?',
-      text: 'Không thể hoàn tác!',
-      type: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Vâng, Xóa đê!',
-      cancelButtonText: 'Hủy bỏ',
-      showLoaderOnConfirm: true,
-      preConfirm: function() {
-        return new Promise(function(resolve,reject) {
-          //alert(11);
-          $.ajax({
-            url: '<?= admin_url(); ?>Admin/removeUserAjax',
-            type: 'POST',
-            data: 'delete='+id,
-            dataType: 'json'
-          })
-          .done(function(response){
-            //alert(11);
-            console.log(response);
-            swal('Đã xóa!', response.message, response.status);
-            setTimeout(location.reload.bind(location), 1500);
-          })
-          .fail(function(){
-            //alert(11);
-            swal('Oops...', 'Xóa thất bại!', 'error');
-          });
-        });
-      }
-    });
-
-  }
-
-  $('#search_parent').submit(function(even){
-    even.preventDefault();
-    var id = $('#id').val();
-    var email = $('#email').val();
-    var name = $('#name').val();
-    //console.log(id,email,name);
-    $.ajax({
-      url: '<?= admin_url(); ?>Admin/search',
-      data: {
-        id : id,
-        email : email,
-        name : name
-      },
-      type: 'POST',
-      //dataType: 'json',
-      success: function(data)
-      {
-        console.log(data.data_pagination);
-        var obj = JSON.parse(data);
-        // console.log(obj);
-        $('.table').html(obj.data_html);
-        $('.pagination').html(obj.data_pagination);
-        $('#this_page').val(obj.data_this_page);
-        $('#last_page').val(obj.data_total_rows);
-        rewrite_onclick();
-      }
-    });
-  });
-
-  function clicknext()
-  {
-    var pageSearch = $('#this_page').val();
-    ++pageSearch;
-    F_pageSearch(pageSearch);
-  }
-
-  function clickprev()
-  {
-    var pageSearch = $('#this_page').val();
-    --pageSearch;
-    F_pageSearch(pageSearch);
-  }
-
-  function rewrite_onclick(){
-    $('.pagclick').each(function() {
-      var thisa = $(this);
-      var childa = thisa.find('a');
-      //alert(childa.html());
-      childa.attr('href','javascript:void(0)');
-      childa.attr('onclick','F_pageSearch('+childa.html()+');');
-    });
-    $('.next').each(function(){
-      var thisa = $(this);
-      var childa = thisa.find('a');
-      childa.attr('href','javascript:void(0)');
-      childa.attr('onclick','clicknext();');
-    });
-    $('.prev').each(function(){
-      var thisa = $(this);
-      var childa = thisa.find('a');
-      childa.attr('href','javascript:void(0)');
-      childa.attr('onclick','clickprev();');
-    });
-    $('.last').each(function(){
-      var thisa = $(this);
-      var childa = thisa.find('a');
-      var last_page = $('#last_page').val();
-      childa.attr('href','javascript:void(0)');
-      childa.attr('onclick','F_pageSearch('+last_page+');');
-    });
-    $('.first').each(function(){
-      var thisa = $(this);
-      var childa = thisa.find('a');
-      childa.attr('href','javascript:void(0)');
-      childa.attr('onclick','F_pageSearch(1);');
-    });
-  }
-
-  function F_pageSearch(pageSearch){
-    var id = $('#id').val();
-    var email = $('#email').val();
-    var name = $('#name').val();
-    $.ajax({
-      url: '<?=admin_url()?>Admin/search/'+pageSearch,
-      data: {
-        id : id,
-        email : email,
-        name : name
-      },
-      type: 'post',
-      success: function(data){
-        var obj = JSON.parse(data);
-        $('.table').html(obj.data_html);
-        $('.pagination').html(obj.data_pagination);
-        $('#this_page').val(obj.data_this_page);
-        $('#last_page').val(obj.data_total_rows);
-        rewrite_onclick();
-      }
-    });
-  }
 </script>
+  
 <!-- <div class="modal fade" id="mymodal" tabindex="-1" role="dialog">
   <div class="modal-dialog" role="document">
     <div class="modal-content">

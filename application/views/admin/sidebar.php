@@ -40,14 +40,14 @@
     </div>
   </li>
   <li class="nav-item">
-    <a class="nav-link" data-toggle="collapse" href="#-basic" aria-expanded="false" aria-controls="ui-basic">
-      <span class="menu-title">Basic UI Elements</span>
+    <a class="nav-link" data-toggle="collapse" href="#product" aria-expanded="false" aria-controls="ui-basic">
+      <span class="menu-title">Product</span>
       <i class="icon-layers menu-icon"></i>
     </a>
-    <div class="collapse" id="-basic">
+    <div class="collapse" id="product">
       <ul class="nav flex-column sub-menu">
-        <li class="nav-item"> <a class="nav-link" href="pages/ui-features/buttons.html">Buttons</a></li>
-        <li class="nav-item"> <a class="nav-link" href="pages/ui-features/typography.html">Typography</a></li>
+        <li class="nav-item"> <a class="nav-link" href="<?php echo admin_url('Product'); ?>">List</a></li>
+        <li class="nav-item"> <a class="nav-link" href="<?php echo admin_url('Product/add'); ?>">Add</a></li>
       </ul>
     </div>
   </li>
